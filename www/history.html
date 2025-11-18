@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>帳戶歷史紀錄</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; }
+    h1 { margin: 0 0 12px; }
+    .toolbar { margin: 8px 0 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f2f2f2; text-align: left; }
+    tr:hover { background: #fafafa; }
+    .btn { display: inline-block; padding: 6px 10px; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; color: #222; background:#fff; }
+    .btn:hover { background: #f5f5f5; }
+    .muted { color: #666; font-size: 13px; }
+    #error { color: #b30000; margin: 8px 0; }
+    .note { white-space: pre-wrap; word-break: break-word; font-size: 0.9em; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>帳戶歷史紀錄</h1>
+  <div class="toolbar">
+    <a class="btn" href="/">← 回我的案件列表</a>
+    <a class="btn" href="/logout">登出</a>
+    <span id="who" class="muted"></span>
+  </div>
+
+  <div id="error"></div>
+  <table id="historyTable">
+    <thead>
+      <tr>
+        <th>時間</th>
+        <th>案件 (ID)</th>
+        <th>標題</th>
+        <th>事件類型</th>
+        <th>事件訊息</th>
+        <th>詳細描述</th>
+        <th>操作者</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function fetchJSON(url, options={}) {
+      const resp = await fetch(url, options);
+      if (resp.status === 401 || resp.redirected) { window.location.href = "/loginForm.html"; return null; }
+      if (resp.status === 403) { throw new Error("權限不足"); }
+      const ct = resp.headers.get("content-type") || "";
+      return ct.includes("application/json") ? resp.json() : resp.text();
+    }
+    const escapeHTML = s => s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const fmtDate  = iso => (!iso ? "" : new Date(iso).toLocaleString());
+
+    function fmtEventType(type) {
+      const typeMap = {
+        "JOB_CREATED": "案件建立",
+        "JOB_INVITED": "發出邀請",         // [新增]
+        "INVITE_ACCEPTED": "接受邀請",     // [新增]
+        "INVITE_DECLINED": "婉拒邀請",     // [新增]
+        "BID_SUBMITTED": "提交報價",
+        "BID_SELECTED": "委託人選標",
+        "REPORT_UPLOADED": "上傳成果",
+        "REPORT_RE_UPLOADED": "重新上傳",
+        "JOB_REJECTED": "委託人退件",
+        "JOB_CLOSED": "驗收結案"
+      };
+      return typeMap[type] || type;
+    }
+
+    async function loadMe() {
+      const me = await fetchJSON("/me");
+      if (!me) return;
+      document.getElementById("who").textContent = `（登入中：${me.role} ${me.username}）`;
+    }
+
+    async function loadHistory() {
+      const data = await fetchJSON("/history");
+      if (!data) return;
+      const tbody = document.querySelector("#historyTable tbody");
+      tbody.innerHTML = "";
+
+      if (!data.items || data.items.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="7" class="muted">目前沒有任何歷史紀錄</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      for (const e of data.items) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${fmtDate(e.created_at)}</td>
+          <td><a href="/jobDetail.html?job_id=${e.job_id}">${e.job_id}</a></td>
+          <td>${escapeHTML(e.job_title)}</td>
+          <td><b>${fmtEventType(e.event_type)}</b></td>
+          <td>${escapeHTML(e.message)}</td>
+          <td class="note">${escapeHTML(e.description)}</td>
+          <td class="muted">${e.actor_name ? escapeHTML(e.actor_name) : `(System #${e.actor_id})`}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    (async () => {
+      try { await loadMe(); await loadHistory(); }
+      catch (e) { document.getElementById("error").textContent = "載入失敗：" + e; }
+    })();
+	
+	window.addEventListener('pageshow', function (e) {
+    if (e.persisted) location.reload();
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register</title>
+</head>
+<body>
+  <h2>Register</h2>
+  <form method="POST" action="/register" novalidate>
+    帳號：<input type="text" name="username" autocomplete="username"><br>
+    密碼：<input type="password" name="password" autocomplete="new-password"><br>
+    角色：
+    <label><input type="radio" name="role" value="client" checked>委託人</label>
+    <label><input type="radio" name="role" value="contractor">承包人</label><br>
+    <input type="submit" value="註冊">
+  </form>
+  <p>已有帳號？<a href="/loginForm.html">回登入頁</a></p>
+</body>
+</html>
