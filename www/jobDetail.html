@@ -6,34 +6,112 @@
   <title>案件詳情</title>
   <style>
     :root { --border:#e5e7eb; --muted:#6b7280; --head:#f3f4f6; }
-    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; max-width: 900px; margin: auto; }
+    body {
+      font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif;
+      padding: 16px;
+      max-width: 900px;
+      margin: auto;
+      background-color: #fff7e5;
+    }
     h1 { margin: 0 0 12px; }
-    h2 { margin: 24px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .toolbar { margin: 8px 0 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    h2 {
+      margin: 24px 0 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .toolbar {
+      margin: 8px 0 16px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
     table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid var(--border); padding: 10px 8px; vertical-align: top; }
-    th { background: var(--head); text-align: left; width: 120px; }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--head);
+      text-align: left;
+      width: 120px;
+    }
     tr:hover { background: #fafafa; }
-    .btn { display: inline-block; padding: 6px 10px; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; color: #222; background:#fff; cursor: pointer; }
+    .btn {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #222;
+      background:#fff;
+      cursor: pointer;
+    }
     .btn:hover { background: #f5f5f5; }
     .btn.primary { background:#007bff; color:#fff; border-color:#007bff; }
     .btn.success { background:#28a745; color:#fff; border-color:#28a745; }
-    .btn.danger { background:#dc3545; color:#fff; border-color:#dc3545; }
-    .btn[disabled] { background: #ccc; border-color: #ccc; color: #666; cursor: not-allowed; }
+    .btn.danger  { background:#dc3545; color:#fff; border-color:#dc3545; }
+    .btn[disabled] {
+      background: #ccc;
+      border-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
     .muted { color: var(--muted); }
     #error { color: #b30000; margin: 8px 0; font-weight: bold; }
     .note { white-space: pre-wrap; word-break: break-word; }
     .job-info-table th { width: 100px; }
     .job-info-table td { white-space: pre-wrap; word-break: break-word; }
     .bids-table th:first-child { width: 120px; }
-    .panel { background: #f9f9f9; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-top: 16px; }
-    .panel-title { font-weight: bold; font-size: 1.1em; margin: 0 0 12px; }
-    textarea { width: 98%; padding: 8px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; }
+    .panel {
+      background: #f9f9f9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .panel-title {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin: 0 0 12px;
+    }
+    textarea {
+      width: 98%;
+      padding: 8px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
     input[type=file] { margin-bottom: 10px; }
-    .status-alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; }
-    .alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
-    .alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
-    .alert-info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+    .status-alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .alert-success { background-color: #d4edda; border:1px solid #c3e6cb; color: #155724; }
+    .alert-danger  { background-color: #f8d7da; border:1px solid #f5c6cb; color: #721c24; }
+    .alert-info    { background-color: #d1ecf1; border:1px solid #bee5eb; color: #0c5460; }
+
+    /* 狀態膠囊 badge（跟 style.css 保持風格一致） */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .badge-yellow {
+      background-color: #fff3c7;
+      color: #7a6b1f;
+    }
+    .status-badge {
+      min-width: 72px;
+      justify-content: center;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -67,6 +145,7 @@
             <th>承包人</th>
             <th>報價金額</th>
             <th>留言 (note)</th>
+            <th>提案書</th>
             <th>動作</th>
           </tr>
         </thead>
@@ -93,6 +172,7 @@
         <tr id="win-contractor-row"><th>承接廠商</th><td id="win-contractor"></td></tr>
         <tr id="win-price-row"><th>承接金額</th><td id="win-price"></td></tr>
         <tr id="win-note-row"><th>廠商備註</th><td id="win-note"></td></tr>
+        <tr id="win-proposal-row"><th>提案書</th><td id="win-proposal"></td></tr>
       </table>
     </div>
   </div>
@@ -119,6 +199,7 @@
         <table class="job-info-table">
             <tr><th>您的報價</th><td id="my-win-price"></td></tr>
             <tr><th>您的備註</th><td id="my-win-note"></td></tr>
+            <tr><th>提案書</th><td id="my-win-proposal"></td></tr>
         </table>
     </div>
     
@@ -148,6 +229,9 @@
 
   <div id="visitor-panel" class="panel" style="display:none;"></div>
 
+  <!-- 歷史版本區塊 -->
+  <div id="result-history-panel" class="panel" style="display:none;"></div>
+
   <script>
     async function fetchJSON(url, options={}) {
       const resp = await fetch(url, options);
@@ -160,10 +244,12 @@
       }
       return await resp.json();
     }
-    const escapeHTML = s => s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const escapeHTML = s => s==null ? "" : String(s)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     const currency = new Intl.NumberFormat("zh-Hant-TW", { style:"currency", currency:"TWD", maximumFractionDigits:0 });
     const fmtMoney = n => (n==null ? "N/A" : currency.format(Number(n)));
     const fmtDate  = iso => (!iso ? "N/A" : new Date(iso).toLocaleDateString());
+    const fmtDateTime = iso => (!iso ? "N/A" : new Date(iso).toLocaleString());
 
     const params = new URLSearchParams(location.search);
     const jobId = params.get("job_id");
@@ -188,14 +274,20 @@
     const clientAcceptedPanel = document.getElementById("client-accepted-panel");
     const contractorWinPanel = document.getElementById("contractor-win-panel");
     const contractorInvitePanel = document.getElementById("contractor-invite-panel");
-    // [新增] 抓取新的 panel
     const contractorInviteWinPanel = document.getElementById("contractor-invite-win-panel");
+    const resultHistoryPanel = document.getElementById("result-history-panel");
+
+    // 統一產生狀態膠囊
+    function renderStatusBadge(status) {
+      const s = escapeHTML(status || "");
+      return `<span class="badge badge-yellow status-badge">${s}</span>`;
+    }
 
     async function loadPage() {
       if (!jobId) { errorEl.textContent = "錯誤：缺少 job_id 參數。"; return; }
 
       const me = await fetchJSON("/me"); if (!me) return;
-      whoEl.textContent = `（登入中：${me.role} ${me.username}）`;
+      whoEl.textContent = `登入中：${me.role} ${me.username}`;
 
       const data = await fetchJSON(`/job/${jobId}/detail`); if (!data) return;
 
@@ -203,23 +295,24 @@
       const bids = data.bids || [];
       const role = data.user_job_role;
       const lastRejection = data.last_rejection;
-      const winningBid = data.winning_bid; // 這是來自 bids 表的報價
+      const winningBid = data.winning_bid; // 來自 bids 表的報價
+      const resultFiles = data.result_files || [];
 
       jobTitleEl.textContent = job.title;
       infoId.textContent = job.id;
-      infoStatus.textContent = escapeHTML(job.status);
+      infoStatus.innerHTML = renderStatusBadge(job.status);
       infoClient.textContent = `${escapeHTML(job.client_name)} (#${job.client_id})`;
       infoContent.textContent = job.content;
       infoBudget.textContent = job.budget == null ? "—" : fmtMoney(job.budget);
       infoDueDate.textContent = job.due_date ? fmtDate(job.due_date) : "—";
 
-      // [修改] 偵測 'rejected' 狀態
+      // 狀態提示區
       if (job.status === 'rejected' && lastRejection) {
         statusAlertPanel.innerHTML = `<div class="status-alert alert-danger"><b>檔案被退件：</b>委託人已退回您上次上傳的檔案，請重新上傳。<br><b>理由：</b>${escapeHTML(lastRejection.message)}</div>`;
         statusAlertPanel.style.display = 'block';
       }
       else if (job.status === 'closed') {
-        statusAlertPanel.innerHTML = `<div class="status-alert alert-success"><b>案件已結案：</b>此案件已於 ${fmtDate(job.updated_at)} 驗收結案。</div>`;
+        statusAlertPanel.innerHTML = `<div class="status-alert alert-success"><b>案件已結案：</b>此案件已於 ${fmtDateTime(job.updated_at)} 驗收結案。</div>`;
         statusAlertPanel.style.display = 'block';
       }
       else if (job.status === 'invited') {
@@ -227,7 +320,7 @@
         statusAlertPanel.style.display = 'block';
       }
 
-
+      // ==== 委託人視角 ====
       if (role === 'client') {
         clientPanel.style.display = 'block';
 
@@ -236,14 +329,19 @@
           const tbody = document.querySelector("#bidsTable tbody");
           tbody.innerHTML = "";
           if (bids.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="muted">目前無人報價</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="muted">目前無人報價</td></tr>`;
           } else {
             bids.forEach(b => {
               const tr = document.createElement("tr");
+              const proposalCell = b.proposal_file
+                ? `<a class="btn" href="/uploads/${encodeURIComponent(b.proposal_file)}" download="${escapeHTML(b.proposal_original_name || 'proposal.pdf')}">下載提案</a>`
+                : `<span class="muted">尚未上傳</span>`;
+
               tr.innerHTML = `
                 <td>${escapeHTML(b.contractor_name)}</td>
                 <td>${fmtMoney(b.price)}</td>
-                <td class="note">${escapeHTML(b.note) || '<span class="muted">(無)</span>'}</td>
+                <td class="note">${b.note ? escapeHTML(b.note) : '<span class="muted">(無)</span>'}</td>
+                <td>${proposalCell}</td>
                 <td>
                   <form action="/bid/accept" method="POST" onsubmit="return confirm('確定選擇此報價？選標後無法更改。')">
                     <input type="hidden" name="job_id" value="${job.id}" />
@@ -260,52 +358,65 @@
         if (job.status === 'uploaded') {
           clientReviewPanel.style.display = 'block';
           document.getElementById('review-job-id').value = job.id;
-          document.getElementById('download-link').href = `/uploads/${job.report_file}`;
+          document.getElementById('download-link').href = `/uploads/${encodeURIComponent(job.report_file)}`;
         }
 
-        // [修改] 'accepted', 'invited', 'closed' 等狀態都會顯示
         if (job.status !== 'pending' && job.contractor_id) {
           clientAcceptedPanel.style.display = 'block';
           document.getElementById('win-contractor').textContent = escapeHTML(job.contractor_name);
           
-          if (winningBid) { // 如果是 'bid' 來的，有報價
+          if (winningBid) { // 報價制
             document.getElementById('win-price-row').querySelector('th').textContent = "得標金額";
             document.getElementById('win-note-row').querySelector('th').textContent = "廠商備註";
             document.getElementById('win-price').textContent = fmtMoney(winningBid.price);
-            document.getElementById('win-note').innerHTML = escapeHTML(winningBid.note) || '<span class="muted">(無)</span>';
-          } else { // [修改] 如果是 'invited' 或 'accepted' (邀請制)
+            document.getElementById('win-note').innerHTML = winningBid.note ? escapeHTML(winningBid.note) : '<span class="muted">(無)</span>';
+
+            const winProposalRow = document.getElementById('win-proposal-row');
+            const winProposalCell = document.getElementById('win-proposal');
+            if (winningBid.proposal_file) {
+              winProposalCell.innerHTML = `<a class="btn" href="/uploads/${encodeURIComponent(winningBid.proposal_file)}" download="${escapeHTML(winningBid.proposal_original_name || 'proposal.pdf')}">下載提案書</a>`;
+              winProposalRow.style.display = '';
+            } else {
+              winProposalCell.innerHTML = '<span class="muted">(無提案書)</span>';
+              winProposalRow.style.display = '';
+            }
+          } else { // 邀請制
             document.getElementById('win-price-row').querySelector('th').textContent = "承接金額";
             document.getElementById('win-note-row').style.display = 'none';
-            // [修改] 顯示 job.budget
+            document.getElementById('win-proposal-row').style.display = 'none';
             document.getElementById('win-price').textContent = job.budget == null ? "N/A (未設定)" : fmtMoney(job.budget);
           }
         }
 
+      // ==== 承包人本人 ====
       } else if (role === 'contractor') {
         contractorPanel.style.display = 'block';
         
-        // [修改] 如果我是被 'invited' 的
         if (job.status === 'invited') {
           contractorInvitePanel.style.display = 'block';
           document.getElementById('invite-client-name').textContent = escapeHTML(job.client_name);
-          // [修改] 顯示邀請的價格
           document.getElementById('invite-price').innerHTML = job.budget == null ? "N/A (未設定)" : fmtMoney(job.budget);
           document.getElementById('invite-job-id-acc').value = job.id;
           document.getElementById('invite-job-id-dec').value = job.id;
         }
 
-        if (winningBid) { // 如果我是透過 'bid' 得標的
+        if (winningBid) { // 報價制得標
           contractorWinPanel.style.display = 'block';
           document.getElementById('my-win-price').textContent = fmtMoney(winningBid.price);
-          document.getElementById('my-win-note').innerHTML = escapeHTML(winningBid.note) || '<span class="muted">(無)</span>';
+          document.getElementById('my-win-note').innerHTML = winningBid.note ? escapeHTML(winningBid.note) : '<span class="muted">(無)</span>';
+
+          const myProposalCell = document.getElementById('my-win-proposal');
+          if (winningBid.proposal_file) {
+            myProposalCell.innerHTML = `<a class="btn" href="/uploads/${encodeURIComponent(winningBid.proposal_file)}" download="${escapeHTML(winningBid.proposal_original_name || 'proposal.pdf')}">下載提案書</a>`;
+          } else {
+            myProposalCell.innerHTML = '<span class="muted">(無提案書)</span>';
+          }
         } 
-        // [修改] 如果我是透過 'invite' 承接的
-        else if (job.status !== 'pending' && job.status !== 'invited') {
+        else if (job.status !== 'pending' && job.status !== 'invited') { // 邀請制承接
           contractorInviteWinPanel.style.display = 'block';
           document.getElementById('my-invite-win-price').innerHTML = job.budget == null ? "N/A (未設定)" : fmtMoney(job.budget);
         }
 
-        // [修改] 允許 'accepted' 或 'rejected' 狀態時上傳
         if (job.status === 'accepted' || job.status === 'rejected') {
           contractorUploadPanel.style.display = 'block';
           document.getElementById('upload-job-id').value = job.id;
@@ -313,26 +424,36 @@
 
         if (job.status === 'uploaded') {
           contractorReviewPanel.style.display = 'block';
-          document.getElementById('contractor-download-link').href = `/uploads/${job.report_file}`;
+          document.getElementById('contractor-download-link').href = `/uploads/${encodeURIComponent(job.report_file)}`;
         }
 
+      // ==== 其他承包人（visitor_contractor） ====
       } else if (role === 'visitor_contractor') {
         visitorPanel.style.display = 'block';
 
         if (bids.length > 0) {
+          const bid = bids[0];
+          let proposalPart = '';
+          if (bid.proposal_file) {
+            proposalPart = `<p>您的提案書：<a class="btn" href="/uploads/${encodeURIComponent(bid.proposal_file)}" download="${escapeHTML(bid.proposal_original_name || 'proposal.pdf')}">下載</a></p>`;
+          }
+
           if (job.status === 'pending') {
             visitorPanel.innerHTML = `
               <div class="panel-title">您已報價</div>
-              <p>您對此案件的報價為：<b>${fmtMoney(bids[0].price)}</b></p>
-              <p>請靜待委託人選標。</p>`;
+              <p>您對此案件的報價為：<b>${fmtMoney(bid.price)}</b></p>
+              <p>請靜待委託人選標。</p>
+              ${proposalPart}
+            `;
           } else {
             visitorPanel.innerHTML = `
               <div class="panel-title">報價未被選中</div>
-              <p>感謝您的報價 (<b>${fmtMoney(bids[0].price)}</b>)。</p>
-              <p>此案件 (狀態: ${escapeHTML(job.status)}) 已選定其他承包人。</p>`;
+              <p>感謝您的報價 (<b>${fmtMoney(bid.price)}</b>)。</p>
+              <p>此案件 (狀態: ${escapeHTML(job.status)}) 已選定其他承包人。</p>
+              ${proposalPart}
+            `;
           }
         } else {
-          // [修改] 'invited' 狀態對其他人不可見，所以只處理 'pending'
           if (job.status === 'pending') {
             visitorPanel.innerHTML = `
               <div class="panel-title">案件開放報價中</div>
@@ -345,13 +466,53 @@
           }
         }
       }
+
+      // ==== 結案檔案歷史版本 ====
+      if (resultFiles.length > 0) {
+        let html = `
+          <div class="panel-title">結案檔案歷史版本</div>
+          <p class="muted">以下為此案件承包人歷次上傳的成果檔案紀錄（版本 1 為最早上傳）。</p>
+          <table class="job-info-table">
+            <tr>
+              <th>版本</th>
+              <th>上傳時間</th>
+              <th>承包人</th>
+              <th>檔名</th>
+              <th>下載</th>
+            </tr>
+        `;
+
+        for (const r of resultFiles) {
+          const contractorText =
+            (job.contractor_id && r.contractor_id === job.contractor_id && job.contractor_name)
+              ? escapeHTML(job.contractor_name)
+              : `承包人 #${r.contractor_id}`;
+
+          const displayName = r.original_name || r.file_path || `version_${r.version}`;
+          html += `
+            <tr>
+              <td>v${r.version}</td>
+              <td>${fmtDateTime(r.uploaded_at)}</td>
+              <td>${contractorText}</td>
+              <td>${escapeHTML(displayName)}</td>
+              <td>
+                <a class="btn" href="/uploads/${encodeURIComponent(r.file_path)}" download="${escapeHTML(displayName)}">下載</a>
+              </td>
+            </tr>
+          `;
+        }
+
+        html += `</table>`;
+        resultHistoryPanel.innerHTML = html;
+        resultHistoryPanel.style.display = 'block';
+      }
     }
 
     loadPage();
-	
-	window.addEventListener('pageshow', function (e) {
-    if (e.persisted) location.reload();
-  });
+    
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) location.reload();
+    });
   </script>
 </body>
 </html>

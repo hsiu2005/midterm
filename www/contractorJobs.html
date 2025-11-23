@@ -4,86 +4,126 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>承包人：可報價案件</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; }
-    h1 { margin: 0 0 12px; }
-    .toolbar { margin: 8px 0 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #f2f2f2; text-align: left; }
-    tr:hover { background: #fafafa; }
-    .btn { display: inline-block; padding: 6px 10px; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; color: #222; background:#fff; }
-    .btn:hover { background: #f5f5f5; }
-    .btn.primary { background:#007bff; color:#fff; border-color:#007bff; }
-    .muted { color: #666; font-size: 13px; }
-    #error { color: #b30000; margin: 8px 0; }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-  <h1>承包人：可報價案件</h1>
-  <div class="toolbar">
-    <a class="btn" href="/contractorMyInvitations.html">我的邀請</a> <a class="btn" href="/contractorMyJobs.html">我的報價/案件</a>
-    <a class="btn" href="/history.html">查看歷史紀錄</a>
-    <a class="btn" href="/logout">登出</a>
-    <span id="who" class="muted"></span>
+<body class="page">
+  <div class="page-inner">
+    <!-- 頁首：標題 + 登入身分 -->
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">承包人：可報價案件</h1>
+        <p class="page-subtitle">
+          這裡列出所有目前開放報價的案件，以及您曾婉拒後變成公開的案件。
+        </p>
+      </div>
+      <span id="who" class="who-tag"></span>
+    </header>
+
+    <!-- 工具列 -->
+    <div class="toolbar">
+      <a class="btn btn-secondary" href="/contractorMyInvitations.html">我的邀請</a>
+      <a class="btn btn-primary" href="/contractorMyJobs.html">我的報價 / 案件</a>
+
+      <span class="toolbar-spacer"></span>
+
+      <a class="btn btn-secondary" href="/history.html">查看歷史紀錄</a>
+      <a class="btn btn-secondary" href="/logout">切換帳號</a>
+      <a class="btn btn-secondary" href="/logout">登出</a>
+    </div>
+
+    <!-- 內容卡片 -->
+    <div class="card">
+      <p class="page-subtitle" style="margin-top:0;">
+        這裡是目前所有「公開」的案件，您先前「婉拒」的邀請案件也會出現在這裡。
+      </p>
+
+      <div id="error" class="error-text"></div>
+
+      <div class="table-wrapper">
+        <table id="jobsTable" class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>標題</th>
+              <th>委託人</th>
+              <th>總報價數</th>
+              <th>我的報價</th>
+              <th>動作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <div id="error"></div>
-  <p class="muted">這裡是目前所有「公開」的案件。您先前「婉拒」的邀請案件也會出現在這裡。</p>
-  <table id="jobsTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>標題</th>
-        <th>委託人</th>
-        <th>總報價數</th>
-        <th>我的報價</th>
-        <th>動作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <script>
-    async function fetchJSON(url, options={}) {
+    async function fetchJSON(url, options = {}) {
       const resp = await fetch(url, options);
-      if (resp.status === 401 || resp.redirected) { window.location.href = "/loginForm.html"; return null; }
-      if (resp.status === 403) { throw new Error("權限不足"); }
+      if (resp.status === 401 || resp.redirected) {
+        window.location.href = "/loginForm.html";
+        return null;
+      }
+      if (resp.status === 403) {
+        throw new Error("權限不足");
+      }
       const ct = resp.headers.get("content-type") || "";
       return ct.includes("application/json") ? resp.json() : resp.text();
     }
-    const escapeHTML = s => s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const currency = new Intl.NumberFormat("zh-Hant-TW", { style:"currency", currency:"TWD", maximumFractionDigits:0 });
-    const fmtMoney = n => (n==null ? '<span class="muted">—</span>' : currency.format(Number(n)));
+
+    const escapeHTML = s =>
+      s == null
+        ? ""
+        : String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+    const currency = new Intl.NumberFormat("zh-Hant-TW", {
+      style: "currency",
+      currency: "TWD",
+      maximumFractionDigits: 0,
+    });
+    const fmtMoney = n =>
+      n == null ? '<span class="text-muted">—</span>' : currency.format(Number(n));
 
     async function loadMe() {
       const me = await fetchJSON("/me");
       if (!me) return;
-      document.getElementById("who").textContent = `（登入中：${me.role} ${me.username}）`;
+      document.getElementById("who").textContent =
+        `登入中：${me.role} ${me.username}`;
     }
 
     async function loadJobs() {
-      const data = await fetchJSON("/contractor/jobs"); // [修正] 呼叫正確的 API
+      const data = await fetchJSON("/contractor/jobs");
       if (!data) return;
+
       const tbody = document.querySelector("#jobsTable tbody");
       tbody.innerHTML = "";
 
       if (!data.items || data.items.length === 0) {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="6" class="muted">目前沒有可報價的案件</td>`;
+        tr.innerHTML =
+          `<td colspan="6" class="text-muted">目前沒有可報價的案件</td>`;
         tbody.appendChild(tr);
         return;
       }
 
       for (const j of data.items) {
         const tr = document.createElement("tr");
+
         let actionBtn = "";
         let myBid = fmtMoney(j.my_bid_price);
-
         if (j.my_bid_price != null) {
-          actionBtn = `<a class="btn" href="/bidForm.html?job_id=${j.id}&title=${encodeURIComponent(j.title)}&price=${j.my_bid_price}">更新報價</a>`;
+          actionBtn =
+            `<a class="btn btn-secondary btn-sm" href="/bidForm.html?job_id=${j.id}&title=${encodeURIComponent(
+              j.title
+            )}&price=${j.my_bid_price}">更新報價</a>`;
         } else {
-          actionBtn = `<a class="btn primary" href="/bidForm.html?job_id=${j.id}&title=${encodeURIComponent(j.title)}">我要出價</a>`;
+          actionBtn =
+            `<a class="btn btn-primary btn-sm" href="/bidForm.html?job_id=${j.id}&title=${encodeURIComponent(
+              j.title
+            )}">我要出價</a>`;
         }
 
         tr.innerHTML = `
@@ -99,13 +139,17 @@
     }
 
     (async () => {
-      try { await loadMe(); await loadJobs(); }
-      catch (e) { document.getElementById("error").textContent = "載入失敗：" + e; }
+      try {
+        await loadMe();
+        await loadJobs();
+      } catch (e) {
+        document.getElementById("error").textContent = "載入失敗：" + e;
+      }
     })();
-	
-	window.addEventListener('pageshow', function (e) {
-    if (e.persisted) location.reload();
-  });
+
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) location.reload();
+    });
   </script>
 </body>
 </html>

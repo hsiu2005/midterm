@@ -1,63 +1,120 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>新建案件</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; }
-    .btn { display:inline-block; padding:6px 10px; border:1px solid #aaa; border-radius:6px; text-decoration:none; color:#222; background:#fff; }
-    .btn:hover { background:#f5f5f5; }
-    .form-row { margin: 16px 0; }
-    label { display: block; margin-bottom: 4px; font-weight: bold; }
-    input[type=text], input[type=number], input[type=date], textarea, select {
-      width: 400px; max-width: 100%; padding: 6px; font-size: 1em;
-    }
-    #error { color: #b30000; margin: 8px 0; }
-  </style>
+  <!-- 用你現在的共用樣式 -->
+  <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-  <h2>新建案件</h2>
-  <div id="error"></div>
-  <form method="POST" action="/job/new">
-    <div class="form-row">
-      <label for="title">標題：</label>
-      <input type="text" id="title" name="title" required minlength="1" maxlength="100">
+<body class="page">
+  <div class="page-inner">
+
+    <!-- 頁首：標題 + 返回按鈕 -->
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">新建案件</h1>
+        <p class="page-subtitle">請填寫案件內容、預算與截止日，建立後承包人即可查看與報價。</p>
+      </div>
+    </header>
+
+    <!-- 內容卡片：表單 -->
+    <div class="card">
+      <div id="error" class="error-text"></div>
+
+      <form method="POST" action="/job/new" class="form">
+        <!-- ⚠ 這兩個 name 一定要是 title / content -->
+        <div class="form-row">
+          <label class="form-label" for="title">標題</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            class="form-control"
+            required
+            minlength="1"
+            maxlength="100"
+            placeholder="例如：單頁形象網站設計"
+          >
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="content">內容</label>
+          <textarea
+            id="content"
+            name="content"
+            class="form-control"
+            rows="6"
+            maxlength="5000"
+            placeholder="請描述案件需求、預期成果、注意事項等"
+            required
+          ></textarea>
+        </div>
+
+        <!-- ⚠ 下面三個 name 也要維持原本：budget_str / due_date_str / invited_contractor_id_str -->
+        <div class="form-row">
+          <label class="form-label" for="budget">
+            預算（若為邀請制，此為報價，選填）
+          </label>
+          <input
+            type="number"
+            id="budget"
+            name="budget_str"
+            class="form-control"
+            min="0"
+            max="999999999"
+            step="1"
+            inputmode="numeric"
+            placeholder="例如：20000"
+          >
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="due_date">截止日（選填）</label>
+          <input
+            type="date"
+            id="due_date"
+            name="due_date_str"
+            class="form-control"
+            placeholder="YYYY-MM-DD"
+          >
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="invited_contractor">指定承包人（選填）</label>
+          <select
+            id="invited_contractor"
+            name="invited_contractor_id_str"
+            class="form-control"
+          >
+            <option value="">-- 全公開（任何承包人皆可報價） --</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn btn-primary">送出案件</button>
+          <a href="/clientJobs.html" class="btn btn-secondary">回「我的案件」列表</a>
+        </div>
+      </form>
     </div>
-    <div class="form-row">
-      <label for="content">內容：</label>
-      <textarea id="content" name="content" rows="6" cols="60" required maxlength="5000"></textarea>
-    </div>
-    <div class="form-row">
-      <label for="budget">預算 (若為邀請制，此為報價)：</label>
-      <input type="number" id="budget" name="budget_str" min="0" max="999999999" step="1" inputmode="numeric" placeholder="（選填）">
-    </div>
-    <div class="form-row">
-      <label for="due_date">截止日：</label>
-      <input type="date" id="due_date" name="due_date_str" placeholder="YYYY-MM-DD">
-    </div>
-    <div class="form-row">
-      <label for="invited_contractor">指定承包人 (選填)：</label>
-      <select id="invited_contractor" name="invited_contractor_id_str">
-        <option value="">-- 全公開 (任何人皆可報價) --</option>
-      </select>
-      <div style="font-size:0.9em; color: #666;">若指定，此案件將只會發送邀請給該承包人；若不指定，則為公開案件。</div>
-    </div>
-    
-    <button type="submit" class="btn">送出</button>
-    <a href="/clientJobs.html" class="btn">回我的案件列表</a>
-  </form>
+  </div>
 
   <script>
+    // 保留你原本的承包人列表載入邏輯，只是套上新的 class/id
     (async () => {
       try {
         const resp = await fetch("/contractors/list");
-        if (resp.status === 401) { location.href = "/loginForm.html"; return; }
-        if (!resp.ok) throw new Error("無法載入承包人列表");
-        
+        if (resp.status === 401) {
+          location.href = "/loginForm.html";
+          return;
+        }
+        if (!resp.ok) {
+          throw new Error("無法載入承包人列表");
+        }
+
         const data = await resp.json();
         const selectEl = document.getElementById("invited_contractor");
-        
+
         if (data.items) {
           data.items.forEach(c => {
             const option = document.createElement("option");
@@ -67,7 +124,8 @@
           });
         }
       } catch (e) {
-        document.getElementById("error").textContent = e.message;
+        const errBox = document.getElementById("error");
+        if (errBox) errBox.textContent = e.message;
       }
     })();
   </script>

@@ -1,0 +1,391 @@
+/* ===== 顏色主題：柔和奶油黃 + 沉穩綠，全部無漸層 ===== */
+:root {
+  --bg: #fff7e5;          /* 頁面背景：淡奶油黃（再柔一點） */
+  --card-bg: #ffffff;     /* 卡片背景：白 */
+  --border-soft: #f0e0c0; /* 卡片 / 輸入框邊線（柔和米色） */
+  --border-focus: #e4c478;
+
+  --accent-yellow: #e4c478;      /* 柔和黃，不亮眼刺眼 */
+  --accent-green: #5e8f78;       /* 沉穩偏灰綠 */
+  --accent-green-soft: #f1f7f4;  /* 很淡的綠底 */
+
+  --text-main: #222222;
+  --text-muted: #7b7f86;
+}
+
+/* ===== Reset & 基本設定 ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif;
+  font-size: 16px;
+  background-color: var(--bg);
+  color: var(--text-main);
+}
+
+/* 通用文字 */
+.muted,
+.text-muted {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.error-text {
+  color: #b30000;
+  margin: 8px 0;
+}
+
+/* ===== 登入 / 註冊頁外框：整體置中 ===== */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+/* 卡片：圓潤、陰影淡淡的 */
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: var(--card-bg);
+  border-radius: 24px;
+  border: 1px solid var(--border-soft);
+  padding: 28px 26px 24px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== 標題：稍微大一點 ===== */
+.auth-title {
+  margin: 0 0 22px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* ===== 表單布局 ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ===== 輸入框：圓潤、不細長 ===== */
+.form-control {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  font-size: 15px;
+  outline: none;
+  background-color: #ffffff;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.form-control:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(228, 196, 120, 0.45);
+  background-color: #fffaf1;
+}
+
+/* radio 群組（註冊頁會用到） */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 15px;
+}
+
+/* ===== 按鈕區：登入 / 註冊用，直向堆疊 ===== */
+.button-row {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 基本按鈕樣式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px; /* 膠囊 */
+  border: 1px solid transparent;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.2;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* 主按鈕：沉穩綠 */
+.btn-primary {
+  background-color: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #4c7663; /* 稍微深一點的綠 */
+  border-color: #4c7663;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* 次按鈕：淡奶油黃＋柔和線＋灰綠字（登入/註冊下方用） */
+.btn-ghost {
+  background-color: #f4e8c1;  /* 有顏色、但很溫和 */
+  border-color: #dcc8a1;
+  color: #6a6f37;
+}
+
+.btn-ghost:hover {
+  background-color: #f5eeda;  /* 微微變亮就好 */
+  border-color: #d1c091;
+  color: #555a2e;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* 一般頁面的次要按鈕（toolbar 用） */
+.btn-secondary {
+  background-color: #ffffff;
+  border-color: var(--border-soft);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background-color: #fffaf1;
+  border-color: var(--accent-yellow);
+}
+
+/* 小一點的按鈕（如果之後真的需要比較小的） */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* 讓按鈕在登入/註冊頁看起來更穩定：預設全寬 */
+.button-row .btn {
+  width: 100%;
+}
+
+/* ===== 文字連結 ===== */
+.link-inline {
+  color: var(--accent-green);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link-inline:hover {
+  text-decoration: underline;
+}
+
+/* ===== 一般內頁版型：列表 / 表格頁會用到 ===== */
+.page {
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.page-inner {
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* 頁首：標題 + 右上角登入身份 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.page-title {
+  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.who-tag {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background-color: var(--accent-green-soft);
+  color: var(--accent-green);
+}
+
+/* 工具列：上方按鈕群 */
+.toolbar {
+  margin: 12px 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 把左邊 / 右邊按鈕拉開用 */
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* 卡片容器：包表格或內容 */
+.card {
+  background-color: var(--card-bg);
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  padding: 16px 18px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.03);
+}
+
+/* 表格外層：可橫向捲動 */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* ===== 表格樣式（列表共用） ===== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee7d8;
+  vertical-align: middle;
+  white-space: nowrap;   /* 避免中文字變成直的 */
+}
+
+.table th {
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  background-color: #fffaf1;
+}
+
+.table tr:hover {
+  background-color: #fff9ec;
+}
+
+/* 只針對表格裡「不是按鈕」的連結改顏色 */
+.table a:not(.btn) {
+  color: var(--accent-green);
+  text-decoration: none;
+}
+
+.table a:not(.btn):hover {
+  text-decoration: underline;
+}
+
+
+/* 歷史紀錄表格：調整欄寬，避免標題直列 */
+.table-history th:nth-child(1) { /* 時間 */
+  width: 180px;
+}
+.table-history th:nth-child(2),   /* 案件 (ID) */
+.table-history th:nth-child(3) {  /* 標題 */
+  width: 90px;
+}
+
+/* 需要可以換行的欄位 */
+.table .note {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.9em;
+  color: #333;
+}
+
+/* 狀態文字的小樣式（之後可以共用） */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.badge-yellow {
+  background-color: #fff3c7;
+  color: #7a6b1f;
+}
+
+.badge-green {
+  background-color: #e0f3e7;
+  color: #276348;
+}
+
+/* Job 詳細資料用的資訊表 */
+.job-info-table th {
+  width: 120px;
+}
+
+.job-info-table td {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* RWD：小螢幕時的內頁排版調整 */
+@media (max-width: 768px) {
+  .page {
+    padding: 16px 10px 32px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 22px 18px 20px;
+  }
+
+  .auth-title {
+    font-size: 26px;
+  }
+}

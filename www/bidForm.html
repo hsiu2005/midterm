@@ -4,65 +4,133 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>我要出價</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; }
-    h1 { margin: 0 0 12px; }
-    label { display: block; margin: 10px 0 4px; }
-    input, textarea { width: 320px; max-width: 100%; padding: 6px; }
-    .row { margin: 8px 0; }
-    .btn { display: inline-block; padding: 6px 10px; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; color: #222; background:#fff; }
-    .btn:hover { background: #f5f5f5; }
-    #msg { margin-top: 10px; color:#c00; white-space: pre-wrap; }
-  </style>
+  <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
-  <h1>我要出價</h1>
+<body class="page">
+  <div class="page-inner">
+    <!-- 頁首：標題 + 登入身分 -->
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">我要出價</h1>
+        <p class="page-subtitle">
+          請確認案件資訊，輸入您的報價與留言，並上傳 PDF 提案書。送出後即可在「我的報價 / 案件」中查看狀態。
+        </p>
+      </div>
+      <span id="who" class="who-tag"></span>
+    </header>
 
-  <div class="row">
-    <a class="btn" href="/contractorJobs.html">← 回可投標列表</a>
-    <a class="btn" href="/logout">登出</a>
+    <!-- 工具列 -->
+    <div class="toolbar">
+      <a class="btn btn-secondary btn-sm" href="/contractorJobs.html">← 回可報價案件列表</a>
+      <a class="btn btn-secondary btn-sm" href="/contractorMyJobs.html">我的報價 / 案件</a>
+      <a class="btn btn-secondary btn-sm" href="/logout">登出</a>
+    </div>
+
+    <!-- 內容卡片：表單 -->
+    <div class="card">
+      <div id="msg" class="error-text"></div>
+
+      <form id="bidForm" method="POST" action="/bid/new" class="form" enctype="multipart/form-data">
+        <!-- 案件 ID（只讀） -->
+        <div class="form-row">
+          <label for="jobId" class="form-label">案件 ID（不可修改）</label>
+          <input id="jobId" name="job_id" type="number" class="form-control" readonly />
+        </div>
+
+        <!-- 案件標題（只讀） -->
+        <div class="form-row">
+          <label for="jobTitle" class="form-label">案件標題</label>
+          <input id="jobTitle" type="text" class="form-control" readonly />
+        </div>
+
+        <!-- 出價金額 -->
+        <div class="form-row">
+          <label for="priceInput" class="form-label">出價金額（整數，新台幣）</label>
+          <input
+            id="priceInput"
+            name="price"
+            type="number"
+            class="form-control"
+            required
+            inputmode="numeric"
+            min="0"
+            max="999999999"
+            step="1"
+            placeholder="例如：20000"
+          />
+        </div>
+
+        <!-- 提案書 PDF -->
+        <div class="form-row">
+          <label for="proposal" class="form-label">提案書（PDF）</label>
+          <input
+            id="proposal"
+            name="proposal_file"
+            type="file"
+            class="form-control"
+            accept="application/pdf"
+            required
+          />
+          <span class="muted">請上傳單一 PDF 檔案，內容為本次投標提案。</span>
+        </div>
+
+        <!-- 留言 -->
+        <div class="form-row">
+          <label for="note" class="form-label">留言（給委託人的訊息，可留空）</label>
+          <textarea
+            id="note"
+            name="note"
+            rows="4"
+            class="form-control"
+            placeholder="若有特殊需求、工期說明或合作方式，可以在這裡簡單說明。"
+          ></textarea>
+        </div>
+
+        <!-- 按鈕區 -->
+        <div class="button-row">
+          <button class="btn btn-primary" type="submit">送出出價</button>
+          <a class="btn btn-ghost" href="/contractorJobs.html">先回案件列表看看</a>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <form id="bidForm" method="POST" action="/bid/new">
-    <div class="row">
-      <label>案件 ID（不可改）</label>
-      <input id="jobId" name="job_id" type="number" readonly />
-    </div>
-
-    <div class="row">
-      <label>案件標題</label>
-      <input id="jobTitle" type="text" readonly />
-    </div>
-
-    <div class="row">
-      <label>出價金額（整數）</label>
-      <input id="priceInput" name="price" type="number" required inputmode="numeric" min="0" max="999999999" step="1" placeholder="例如 20000" />
-    </div>
-
-    <div class="row">
-      <label>留言（可留空）</label>
-      <textarea name="note" rows="4" placeholder="給委託人的訊息（可留空）"></textarea>
-    </div>
-
-    <div class="row">
-      <button class="btn" type="submit">送出出價</button>
-    </div>
-  </form>
-
-  <div id="msg"></div>
-
   <script>
-    async function fetchJSON(url, options={}) {
+    async function fetchJSON(url, options = {}) {
       const resp = await fetch(url, options);
-      if (resp.status === 401) { location.href="/loginForm.html"; return null; }
-      if (resp.redirected) { location.href=resp.url; return null; }
-      if (resp.status === 403) { throw new Error("權限不足"); }
+      if (resp.status === 401) {
+        location.href = "/loginForm.html";
+        return null;
+      }
+      if (resp.redirected) {
+        location.href = resp.url;
+        return null;
+      }
+      if (resp.status === 403) {
+        throw new Error("權限不足");
+      }
       const ct = resp.headers.get("content-type") || "";
       return ct.includes("application/json") ? resp.json() : resp.text();
     }
-    const escapeHTML = s => s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-    const params = new URLSearchParams(location.search);
+    const escapeHTML = (s) =>
+      s == null
+        ? ""
+        : String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+    // 讀取登入資訊，顯示右上角 who-tag
+    async function loadMe() {
+      const me = await fetchJSON("/me");
+      if (!me) return;
+      document.getElementById("who").textContent =
+        `登入中：${me.role} ${me.username}`;
+    }
+
+    // 讀取 URL 參數並填入欄位
+    const params   = new URLSearchParams(location.search);
     const jobId    = params.get("job_id");
     const titleQ   = params.get("title") || "";
     const priceQ   = params.get("price");
@@ -73,7 +141,7 @@
     const msgBox        = document.getElementById("msg");
 
     jobIdInput.value    = jobId || "";
-    jobTitleInput.value = titleQ; // 僅顯示
+    jobTitleInput.value = titleQ;
     if (priceQ !== null && priceQ !== "") priceInput.value = priceQ;
 
     if (!jobId) {
@@ -81,22 +149,46 @@
       document.querySelector("button[type=submit]").disabled = true;
     }
 
+    // 監聽送出事件，處理錯誤顯示
     document.getElementById("bidForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       msgBox.textContent = "";
 
       const formData = new FormData(e.currentTarget);
       try {
-        const resp = await fetch(e.currentTarget.action, { method: "POST", body: formData, redirect: "follow" });
+        const resp = await fetch(e.currentTarget.action, {
+          method: "POST",
+          body: formData,
+          redirect: "follow",
+        });
 
-        if (resp.status === 401) { location.href = "/loginForm.html"; return; }
-        if (resp.redirected) { location.href = resp.url; return; }
+        if (resp.status === 401) {
+          location.href = "/loginForm.html";
+          return;
+        }
+        if (resp.redirected) {
+          location.href = resp.url; // 成功通常會被 redirect
+          return;
+        }
 
         const text = await resp.text();
         msgBox.textContent = text || "未預期的回應，請稍後再試。";
       } catch (err) {
         msgBox.textContent = "出價失敗：" + err;
       }
+    });
+
+    (async () => {
+      try {
+        await loadMe();
+      } catch (e) {
+        msgBox.textContent = "載入使用者資訊失敗：" + e;
+      }
+    })();
+
+    // 防止瀏覽器快取舊畫面
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) location.reload();
     });
   </script>
 </body>

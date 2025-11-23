@@ -4,96 +4,136 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>委託人：我的案件</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; }
-    h1 { margin: 0 0 12px; }
-    .toolbar { margin: 8px 0 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #f2f2f2; text-align: left; }
-    tr:hover { background: #fafafa; }
-    .btn { display: inline-block; padding: 6px 10px; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; color: #222; background:#fff; }
-    .btn:hover { background: #f5f5f5; }
-    .btn.primary { background:#007bff; color:#fff; border-color:#007bff; }
-    .muted { color: #666; font-size: 13px; }
-    #error { color: #b30000; margin: 8px 0; }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-  <h1>委託人：我的案件</h1>
-  <div class="toolbar">
-    <a class="btn primary" href="/jobNew.html">新增案件</a>
-    <a class="btn" href="/history.html">查看歷史紀錄</a>
-    <a class="btn" href="/logout">切換帳號</a>
-    <a class="btn" href="/logout">登出</a>
-    <span id="who" class="muted"></span>
+<body class="page">
+  <div class="page-inner">
+    <!-- 頁首：標題 + 登入身分 -->
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">委託人：我的案件</h1>
+        <p class="page-subtitle">
+          在這裡管理您已建立的所有案件，查看報價與進度。
+        </p>
+      </div>
+      <span id="who" class="who-tag"></span>
+    </header>
+
+    <!-- 工具列按鈕（整體放大＋左右分區） -->
+    <div class="toolbar">
+      <div class="toolbar-main">
+        <a class="btn btn-primary btn-wide" href="/jobNew.html">＋ 新增案件</a>
+      </div>
+      <div class="toolbar-extra">
+        <a class="btn btn-secondary" href="/history.html">查看歷史紀錄</a>
+        <a class="btn btn-secondary" href="/logout">切換帳號</a>
+        <a class="btn btn-secondary" href="/logout">登出</a>
+      </div>
+    </div>
+
+    <!-- 內容卡片：錯誤訊息 + 表格 -->
+    <div class="card">
+      <div id="error" class="error-text"></div>
+
+      <div class="table-wrapper">
+        <table id="jobsTable" class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>標題</th>
+              <th>狀態</th>
+              <th>得標承包人</th>
+              <th>報價數</th>
+              <th>動作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <div id="error"></div>
-  <table id="jobsTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>標題</th>
-        <th>狀態</th>
-        <th>得標承包人</th> <th>報價數</th>
-        <th>動作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <script>
-    async function fetchJSON(url, options={}) {
+    async function fetchJSON(url, options = {}) {
       const resp = await fetch(url, options);
-      if (resp.status === 401 || resp.redirected) { window.location.href = "/loginForm.html"; return null; }
-      if (resp.status === 403) { throw new Error("權限不足"); }
+      if (resp.status === 401 || resp.redirected) {
+        window.location.href = "/loginForm.html";
+        return null;
+      }
+      if (resp.status === 403) {
+        throw new Error("權限不足");
+      }
       const ct = resp.headers.get("content-type") || "";
       return ct.includes("application/json") ? resp.json() : resp.text();
     }
-    const escapeHTML = s => s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+    const escapeHTML = s =>
+      s == null
+        ? ""
+        : String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
 
     async function loadMe() {
       const me = await fetchJSON("/me");
       if (!me) return;
-      document.getElementById("who").textContent = `（登入中：${me.role} ${me.username}）`;
+      const who = document.getElementById("who");
+      who.textContent = `登入中：${me.role} ${me.username}`;
     }
 
     async function loadJobs() {
       const data = await fetchJSON("/client/jobs");
       if (!data) return;
+
       const tbody = document.querySelector("#jobsTable tbody");
       tbody.innerHTML = "";
 
       if (!data.items || data.items.length === 0) {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="6" class="muted">尚未建立任何案件</td>`;
+        tr.innerHTML =
+          `<td colspan="6" class="text-muted" style="text-align:center;">尚未建立任何案件</td>`;
         tbody.appendChild(tr);
         return;
       }
 
       for (const j of data.items) {
         const tr = document.createElement("tr");
+
+        const contractorCell = j.contractor_name
+          ? escapeHTML(j.contractor_name)
+          : '<span class="text-muted">—</span>';
+
         tr.innerHTML = `
           <td>${j.id}</td>
           <td>${escapeHTML(j.title)}</td>
           <td>${escapeHTML(j.status)}</td>
-          <td>${j.contractor_name ? escapeHTML(j.contractor_name) : '<span class="muted">—</span>'}</td>
+          <td>${contractorCell}</td>
           <td>${j.bid_count ?? 0}</td>
-          <td><a class="btn" href="/jobDetail.html?job_id=${j.id}">查看詳情</a></td>
+          <td>
+            <a class="btn btn-secondary btn-sm"
+               href="/jobDetail.html?job_id=${j.id}">
+              查看詳情
+            </a>
+          </td>
         `;
         tbody.appendChild(tr);
       }
     }
 
     (async () => {
-      try { await loadMe(); await loadJobs(); }
-      catch (e) { document.getElementById("error").textContent = "載入失敗：" + e; }
+      try {
+        await loadMe();
+        await loadJobs();
+      } catch (e) {
+        document.getElementById("error").textContent = "載入失敗：" + e;
+      }
     })();
-	
-	window.addEventListener('pageshow', function (e) {
-    if (e.persisted) location.reload();
-  });
+
+    // 防止瀏覽器快取舊畫面
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) location.reload();
+    });
   </script>
 </body>
 </html>

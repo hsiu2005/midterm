@@ -4,66 +4,90 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>承包人：我的邀請</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Microsoft JhengHei", Arial, sans-serif; padding: 16px; }
-    h1 { margin: 0 0 12px; }
-    .toolbar { margin: 8px 0 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #f2f2f2; text-align: left; }
-    tr:hover { background: #fafafa; }
-    .btn { display: inline-block; padding: 6px 10px; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; color: #222; background:#fff; cursor: pointer; }
-    .btn:hover { background: #f5f5f5; }
-    .btn.primary { background:#007bff; color:#fff; border-color:#007bff; }
-    .btn.success { background:#28a745; color:#fff; border-color:#28a745; }
-    .btn.danger { background:#dc3545; color:#fff; border-color:#dc3545; }
-    .muted { color: #666; font-size: 13px; }
-    #error { color: #b30000; margin: 8px 0; }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>承包人：我的邀請</h1>
-  <div class="toolbar">
-    <a class="btn" href="/contractorMyJobs.html">我的報價/案件</a>
-    <a class="btn primary" href="/contractorJobs.html">瀏覽可報價案件</a>
-    <a class="btn" href="/history.html">查看歷史紀錄</a>
-    <a class="btn" href="/logout">登出</a>
-    <span id="who" class="muted"></span>
-  </div>
+  <div class="page">
+    <div class="page-inner">
+      <!-- 頁首：標題 + 右上登入資訊 -->
+      <header class="page-header">
+        <div>
+          <h1 class="page-title">承包人：我的邀請</h1>
+          <p class="page-subtitle">
+            以下是委託人直接指定邀請你承接的案件。你可以選擇接受或婉拒。
+          </p>
+        </div>
+        <div id="who" class="who-tag"></div>
+      </header>
 
-  <div id="error"></div>
-  <p class="muted">以下是委託人直接指定邀請您承接的案件。接受後，案件將進入「執行中」狀態；婉拒後，案件將轉為「公開」，開放所有人報價。</p>
-  <table id="jobsTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>標題</th>
-        <th>委託人</th>
-        <th>預算</th>
-        <th>邀請時間</th>
-        <th>動作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <!-- 工具列 -->
+      <div class="toolbar">
+        <a class="btn btn-secondary" href="/contractorMyJobs.html">我的報價 / 案件</a>
+        <a class="btn btn-secondary" href="/contractorJobs.html">瀏覽可報價案件</a>
+        <a class="btn btn-secondary" href="/history.html">歷史紀錄</a>
+        <a class="btn btn-ghost" href="/logout">登出</a>
+      </div>
+
+      <div id="error" class="error-text"></div>
+
+      <!-- 卡片 + 表格 -->
+      <div class="card">
+        <p class="muted" style="margin: 0 0 8px;">
+          接受後，案件將進入執行中狀態；婉拒後，案件會轉為公開，其他承包人也可以報價。
+        </p>
+
+        <div class="table-wrapper">
+          <table id="jobsTable" class="table">
+            <thead>
+              <tr>
+                <th style="width:60px;">ID</th>
+                <th>標題</th>
+                <th>委託人</th>
+                <th style="width:120px;">預算</th>
+                <th style="width:160px;">邀請時間</th>
+                <th style="width:220px;">動作</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <script>
     async function fetchJSON(url, options={}) {
       const resp = await fetch(url, options);
-      if (resp.status === 401 || resp.redirected) { window.location.href = "/loginForm.html"; return null; }
+      if (resp.status === 401 || resp.redirected) {
+        window.location.href = "/loginForm.html";
+        return null;
+      }
       if (resp.status === 403) { throw new Error("權限不足"); }
       const ct = resp.headers.get("content-type") || "";
       return ct.includes("application/json") ? resp.json() : resp.text();
     }
-    const escapeHTML = s => s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const currency = new Intl.NumberFormat("zh-Hant-TW", { style:"currency", currency:"TWD", maximumFractionDigits:0 });
-    const fmtMoney = n => (n==null ? '<span class="muted">—</span>' : currency.format(Number(n)));
-    const fmtDate = iso => (!iso ? "N/A" : new Date(iso).toLocaleString());
+
+    const escapeHTML = s =>
+      s==null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+    const currency = new Intl.NumberFormat("zh-Hant-TW", {
+      style:"currency",
+      currency:"TWD",
+      maximumFractionDigits:0
+    });
+    const fmtMoney = n =>
+      (n==null ? '<span class="muted">—</span>' : currency.format(Number(n)));
+    const fmtDate = iso =>
+      (!iso ? "N/A" : new Date(iso).toLocaleString());
 
     async function loadMe() {
       const me = await fetchJSON("/me");
       if (!me) return;
-      document.getElementById("who").textContent = `（登入中：${me.role} ${me.username}）`;
+      const who = document.getElementById("who");
+      if (who) {
+        who.textContent = `登入中：${me.role} ${me.username}`;
+      }
     }
 
     async function loadJobs() {
@@ -74,7 +98,7 @@
 
       if (!data.items || data.items.length === 0) {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="6" class="muted">目前沒有邀請</td>`;
+        tr.innerHTML = `<td colspan="6" class="muted">目前沒有任何邀請</td>`;
         tbody.appendChild(tr);
         return;
       }
@@ -88,14 +112,17 @@
           <td>${fmtMoney(j.budget)}</td>
           <td>${fmtDate(j.created_at)}</td>
           <td>
-            <a class="btn" href="/jobDetail.html?job_id=${j.id}">查看詳情</a>
-            <form action="/invitation/accept" method="POST" style="display:inline-block; margin:0 4px;">
+            <a class="btn btn-secondary btn-sm" href="/jobDetail.html?job_id=${j.id}">查看詳情</a>
+            <form action="/invitation/accept" method="POST"
+                  style="display:inline-block; margin:0 4px;">
               <input type="hidden" name="job_id" value="${j.id}">
-              <button type="submit" class="btn success">接受</button>
+              <button type="submit" class="btn btn-primary btn-sm">接受</button>
             </form>
-            <form action="/invitation/decline" method="POST" style="display:inline-block;" onsubmit="return confirm('確定要婉拒嗎？婉拒後案件將轉為公開。')">
+            <form action="/invitation/decline" method="POST"
+                  style="display:inline-block;"
+                  onsubmit="return confirm('確定要婉拒嗎？婉拒後案件將轉為公開。')">
               <input type="hidden" name="job_id" value="${j.id}">
-              <button type="submit" class="btn danger">婉拒</button>
+              <button type="submit" class="btn btn-secondary btn-sm">婉拒</button>
             </form>
           </td>
         `;
@@ -104,13 +131,18 @@
     }
 
     (async () => {
-      try { await loadMe(); await loadJobs(); }
-      catch (e) { document.getElementById("error").textContent = "載入失敗：" + e; }
+      try {
+        await loadMe();
+        await loadJobs();
+      } catch (e) {
+        const err = document.getElementById("error");
+        if (err) err.textContent = "載入失敗：" + e;
+      }
     })();
-	
-	window.addEventListener('pageshow', function (e) {
-    if (e.persisted) location.reload();
-  });
+
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) location.reload();
+    });
   </script>
 </body>
 </html>

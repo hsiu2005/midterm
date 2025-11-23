@@ -2,15 +2,46 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>Login</title>
+  <title>登入 | 工作委託平台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h2>Login</h2>
-  <form method="POST" action="/login" novalidate>
-    帳號：<input type="text" name="username" autocomplete="username"><br>
-    密碼：<input type="password" name="password" autocomplete="current-password"><br>
-    <input type="submit" value="登入">
-  </form>
-  <p>沒有帳號？<a href="/registerForm.html">前往註冊</a></p>
+  <div class="auth-page">
+    <div class="auth-card">
+      <h1 class="auth-title">歡迎回來</h1>
+
+      <form method="POST" action="/login" novalidate class="form">
+        <div class="form-row">
+          <label class="form-label" for="login-username">帳號</label>
+          <input
+            id="login-username"
+            class="form-control"
+            type="text"
+            name="username"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="login-password">密碼</label>
+          <input
+            id="login-password"
+            class="form-control"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn btn-primary">登入</button>
+          <a href="/registerForm.html" class="btn btn-ghost">還沒有帳號？前往註冊</a>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

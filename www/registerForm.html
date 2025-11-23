@@ -2,18 +2,60 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>Register</title>
+  <title>註冊 | 工作委託平台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h2>Register</h2>
-  <form method="POST" action="/register" novalidate>
-    帳號：<input type="text" name="username" autocomplete="username"><br>
-    密碼：<input type="password" name="password" autocomplete="new-password"><br>
-    角色：
-    <label><input type="radio" name="role" value="client" checked>委託人</label>
-    <label><input type="radio" name="role" value="contractor">承包人</label><br>
-    <input type="submit" value="註冊">
-  </form>
-  <p>已有帳號？<a href="/loginForm.html">回登入頁</a></p>
+  <div class="auth-page">
+    <div class="auth-card">
+      <h1 class="auth-title">建立新帳號</h1>
+
+      <form method="POST" action="/register" novalidate class="form">
+        <div class="form-row">
+          <label class="form-label" for="reg-username">帳號</label>
+          <input
+            id="reg-username"
+            class="form-control"
+            type="text"
+            name="username"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="reg-password">密碼</label>
+          <input
+            id="reg-password"
+            class="form-control"
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+        <div class="form-row">
+          <span class="form-label">角色</span>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="role" value="client" checked>
+              委託人
+            </label>
+            <label>
+              <input type="radio" name="role" value="contractor">
+              承包人
+            </label>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn btn-primary">註冊</button>
+          <a href="/loginForm.html" class="btn btn-ghost">已經有帳號了？前往登入</a>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
